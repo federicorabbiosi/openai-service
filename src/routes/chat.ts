@@ -1,8 +1,7 @@
-const OpenAI = require('openai')
-const express = require('express')
+import express from 'express'
+import OpenAI from 'openai'
 
 const openai = new OpenAI({apiKey: process.env.OPENAI_API_KEY})
-
 const router = express.Router()
 
 router.get('/', (req, res) => {
@@ -10,8 +9,6 @@ router.get('/', (req, res) => {
   if (req.headers) {
     //console.log(req.headers)
   }
-
-  res.json({id: 1, req: req.baseUrl})
 })
 
 router.post('/', (req, res) => {
