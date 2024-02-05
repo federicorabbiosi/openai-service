@@ -76,7 +76,7 @@ router.post('/', async (req, res) => {
   try {
     let data : ChatRequest = req.body
 
-    getDataset(data.scope || 'webapp').then((dataset) => {
+    getDataset(data.scope || 'pileaweb').then((dataset) => {
       console.log(dataset)
 
       if (data.question) {

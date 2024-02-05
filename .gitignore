@@ -135,4 +135,5 @@ dist
 # Documentation, exclude it while this repository is public
 /src/dataset/*/*.pdf
 /src/dataset/*/*.doc
+/src/dataset/*/*.docx
 /src/dataset/*/*.txt
