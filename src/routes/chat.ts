@@ -17,7 +17,7 @@ router.get('/', (req, res) => {
 })
 
 router.get('/test', (req, res) => {
-  getDataset('pileaweb').then((r) => {
+  getDataset('pagoparest').then((r) => {
     res.send(r)
   }).catch((err) => {
     res.status(400).send(err)
@@ -39,14 +39,17 @@ const getDataset = async (scope: string) : Promise<ChatCompletionMessageParam[]>
   const promises: any[] = []
 
   files.forEach(async fileName => {
-    console.log(fileName)
     if (fileName.endsWith('.txt')) {
       promises.push(Promise.resolve(fs.readFileSync(`${datasetPath}/${fileName}`).toString()))
     } else if (fileName.endsWith('.pdf')) {
       promises.push(new Promise((resolve, reject) => {
         pdfToString(`${datasetPath}/${fileName}`).then(res => {
           resolve(res)
-          // TODO - move the original pdf to .hidden folder and save a .txt file with the extracted content
+
+          // move the original pdf to .hidden folder and save a .txt file with the extracted content
+          fs.renameSync(`${datasetPath}/${fileName}`, `${datasetPath}/.hidden/${fileName}`)
+
+          fs.writeFileSync(`${datasetPath}/${fileName.substring(0, fileName.length - 4)}.txt`, res)
         }).catch((err) => {
           reject(err)
         })
@@ -73,27 +76,32 @@ const getDataset = async (scope: string) : Promise<ChatCompletionMessageParam[]>
 }
 
 router.post('/', async (req, res) => {
+  console.log(req.body)
   try {
     let data : ChatRequest = req.body
 
     getDataset(data.scope || 'pileaweb').then((dataset) => {
-      console.log(dataset)
+      //console.log(dataset)
 
       if (data.question) {
         openai.chat.completions.create({
           messages: [
-            {role: 'system', content: "Rispondi solo in base al context fornito"},
+            {role: 'system', content: "Rispondi solo in base al context fornito e alle domande inerenti a " + data.scope},
             ...dataset,
             {role: 'user', content: data.question}],
           model: 'gpt-3.5-turbo'
         }).then(data => {
+          console.log(JSON.stringify(data))
           res.json(data)
         }).catch((err) => {
           res.status(err.status || 500).json(err)
         })
+      } else {
+        throw 'Missing question'
       }
     }).catch((err) => {
-      console.error(err)
+      console.log("err_ " + err)
+      throw err
     })
 
   } catch (err: any) {

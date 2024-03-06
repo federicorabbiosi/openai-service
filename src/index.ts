@@ -6,7 +6,6 @@ dotenv.config()
 
 const app = express()
 const chatRouter = require('./routes/chat')
-const transcriptionRouter = require('./routes/transcription')
 
 app.use(helmet())
 app.use(cors())
@@ -17,7 +16,6 @@ app.get('/', (req, res) => {
 })
 
 app.use('/chat', chatRouter)
-app.use('/transcription', transcriptionRouter)
 
 const port = process.env.PORT
 
